@@ -3,6 +3,6 @@ uvicorn
 python-multipart
 transformers
 torch
-overpy7
+overpy
 geopy
 pydantic
