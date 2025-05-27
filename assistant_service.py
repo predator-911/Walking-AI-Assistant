@@ -150,52 +150,56 @@ class WalkingAssistant:
         """Get aggregate walking statistics for a user"""
         return self.db_service.get_walking_stats(user_id)
     
-    def analyze_walking_behavior(self, user_id: str) -> str:
-        """Analyze user's walking behavior using LLM"""
-        # Get user data
-        user_data = self.db_service.get_user(user_id)
-        if not user_data:
-            return "No user data available."
-        
-        # Get walking history
-        history = self.db_service.get_walking_history(user_id, limit=20)
-        if not history:
-            return "Not enough walking data to analyze behavior."
-        
-        # Get stats
-        stats = self.db_service.get_walking_stats(user_id)
-        
-        # Prepare prompt for LLM
-        prompt = f"""
-        Analyze the following walking data for a user:
-        
-        User preferences:
-        - Preferred walking speed: {user_data['preferred_walking_speed']} km/h
-        - Preferred maximum distance: {user_data['preferred_max_distance']} km
-        
-        Walking statistics:
-        - Total walks: {stats['total_walks']}
-        - Total distance: {stats['total_distance_km']:.2f} km
-        - Total duration: {stats['total_duration_minutes']} minutes
-        - Average walk distance: {stats['avg_distance_km']:.2f} km
-        - Average walk duration: {stats['avg_duration_minutes']:.2f} minutes
-        - Longest walk: {stats['max_distance_km']:.2f} km
-        - Longest walk duration: {stats['max_duration_minutes']} minutes
-        
-        Recent walks:
-        {'\n'.join([
-            f"- {i+1}. Date: {walk['completed_at']}, Distance: {walk['distance_km']:.2f} km, Duration: {walk['duration_minutes']} min"
-            for i, walk in enumerate(history[:5])
-        ])}
-        
-        Please provide a brief analysis of this user's walking behavior and habits.
-        Include personalized suggestions for improvements and motivation.
-        Keep your response concise and friendly.
-        """
-        
+    
+def analyze_walking_behavior(self, user_id: str) -> str:
+    """Analyze user's walking behavior using LLM"""
+    # Get user data
+    user_data = self.db_service.get_user(user_id)
+    if not user_data:
+        return "No user data available."
+    
+    # Get walking history
+    history = self.db_service.get_walking_history(user_id, limit=20)
+    if not history:
+        return "Not enough walking data to analyze behavior."
+    
+    # Get stats
+    stats = self.db_service.get_walking_stats(user_id)
+    
+    # Prepare recent walks data
+    recent_walks_text = ""
+    for i, walk in enumerate(history[:5]):
+        recent_walks_text += f"- {i+1}. Date: {walk['completed_at']}, Distance: {walk['distance_km']:.2f} km, Duration: {walk['duration_minutes']} min\n"
+    
+    # Prepare prompt for LLM - using single quotes and proper formatting
+    prompt = f'''Analyze the following walking data for a user:
+
+User preferences:
+- Preferred walking speed: {user_data['preferred_walking_speed']} km/h
+- Preferred maximum distance: {user_data['preferred_max_distance']} km
+
+Walking statistics:
+- Total walks: {stats['total_walks']}
+- Total distance: {stats['total_distance_km']:.2f} km
+- Total duration: {stats['total_duration_minutes']} minutes
+- Average walk distance: {stats['avg_distance_km']:.2f} km
+- Average walk duration: {stats['avg_duration_minutes']:.2f} minutes
+- Longest walk: {stats['max_distance_km']:.2f} km
+- Longest walk duration: {stats['max_duration_minutes']} minutes
+
+Recent walks:
+{recent_walks_text}
+
+Please provide a brief analysis of this user's walking behavior and habits.
+Include personalized suggestions for improvements and motivation.
+Keep your response concise and friendly.'''
+    
+    try:
         # Generate analysis with LLM
         analysis = generate_text(self.model, self.tokenizer, prompt, max_length=1024)
         return analysis
+    except Exception as e:
+        return f"Error generating analysis: {str(e)}"
     
     def generate_route_description(self, route: Dict[str, Any]) -> str:
         """Generate a natural language description of a route using LLM"""
