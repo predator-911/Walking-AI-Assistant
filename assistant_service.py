@@ -150,29 +150,28 @@ class WalkingAssistant:
         """Get aggregate walking statistics for a user"""
         return self.db_service.get_walking_stats(user_id)
     
-    
-def analyze_walking_behavior(self, user_id: str) -> str:
-    """Analyze user's walking behavior using LLM"""
-    # Get user data
-    user_data = self.db_service.get_user(user_id)
-    if not user_data:
-        return "No user data available."
-    
-    # Get walking history
-    history = self.db_service.get_walking_history(user_id, limit=20)
-    if not history:
-        return "Not enough walking data to analyze behavior."
-    
-    # Get stats
-    stats = self.db_service.get_walking_stats(user_id)
-    
-    # Prepare recent walks data
-    recent_walks_text = ""
-    for i, walk in enumerate(history[:5]):
-        recent_walks_text += f"- {i+1}. Date: {walk['completed_at']}, Distance: {walk['distance_km']:.2f} km, Duration: {walk['duration_minutes']} min\n"
-    
-    # Prepare prompt for LLM - using single quotes and proper formatting
-    prompt = f'''Analyze the following walking data for a user:
+    def analyze_walking_behavior(self, user_id: str) -> str:
+        """Analyze user's walking behavior using LLM"""
+        # Get user data
+        user_data = self.db_service.get_user(user_id)
+        if not user_data:
+            return "No user data available."
+        
+        # Get walking history
+        history = self.db_service.get_walking_history(user_id, limit=20)
+        if not history:
+            return "Not enough walking data to analyze behavior."
+        
+        # Get stats
+        stats = self.db_service.get_walking_stats(user_id)
+        
+        # Prepare recent walks data
+        recent_walks_text = ""
+        for i, walk in enumerate(history[:5]):
+            recent_walks_text += f"- {i+1}. Date: {walk['completed_at']}, Distance: {walk['distance_km']:.2f} km, Duration: {walk['duration_minutes']} min\n"
+        
+        # Prepare prompt for LLM - using single quotes and proper formatting
+        prompt = f'''Analyze the following walking data for a user:
 
 User preferences:
 - Preferred walking speed: {user_data['preferred_walking_speed']} km/h
@@ -193,13 +192,13 @@ Recent walks:
 Please provide a brief analysis of this user's walking behavior and habits.
 Include personalized suggestions for improvements and motivation.
 Keep your response concise and friendly.'''
-    
-    try:
-        # Generate analysis with LLM
-        analysis = generate_text(self.model, self.tokenizer, prompt, max_length=1024)
-        return analysis
-    except Exception as e:
-        return f"Error generating analysis: {str(e)}"
+        
+        try:
+            # Generate analysis with LLM
+            analysis = generate_text(self.model, self.tokenizer, prompt, max_length=1024)
+            return analysis
+        except Exception as e:
+            return f"Error generating analysis: {str(e)}"
     
     def generate_route_description(self, route: Dict[str, Any]) -> str:
         """Generate a natural language description of a route using LLM"""
@@ -214,25 +213,29 @@ Keep your response concise and friendly.'''
         for poi in pois:
             poi_descriptions.append(f"- {poi.get('name', 'Unnamed location')} ({poi.get('type', 'point of interest')})")
         
+        # Fix: Extract the newline join outside the f-string
+        poi_text = '\n'.join(poi_descriptions) if poi_descriptions else "No specific points of interest."
+        
         # Prepare prompt for LLM
-        prompt = f"""
-        Describe the following walking route in a friendly, conversational way:
+        prompt = f"""Describe the following walking route in a friendly, conversational way:
         
-        Route details:
-        - Total distance: {distance:.2f} km
-        - Estimated duration: {duration} minutes
+Route details:
+- Total distance: {distance:.2f} km
+- Estimated duration: {duration} minutes
+
+Points of interest along the route:
+{poi_text}
+
+Provide a brief, engaging description of this route that would encourage someone to try it.
+Include practical information like distance and time, as well as highlighting any interesting features.
+Keep your response concise and conversational."""
         
-        Points of interest along the route:
-        {'\n'.join(poi_descriptions) if poi_descriptions else "No specific points of interest."}
-        
-        Provide a brief, engaging description of this route that would encourage someone to try it.
-        Include practical information like distance and time, as well as highlighting any interesting features.
-        Keep your response concise and conversational.
-        """
-        
-        # Generate description with LLM
-        description = generate_text(self.model, self.tokenizer, prompt, max_length=768)
-        return description
+        try:
+            # Generate description with LLM
+            description = generate_text(self.model, self.tokenizer, prompt, max_length=768)
+            return description
+        except Exception as e:
+            return f"Error generating route description: {str(e)}"
     
     def close(self):
         """Clean up resources"""
