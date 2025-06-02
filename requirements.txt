@@ -6,3 +6,4 @@ torch
 overpy
 geopy
 pydantic
+shapely
