@@ -1,52 +1,46 @@
 # FastAPI and web server dependencies
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
+fastapi
+uvicorn[standard]
+python-multipart
 
 # Machine Learning and NLP
-transformers==4.35.2
-torch==2.1.1
-accelerate==0.24.1
-bitsandbytes==0.41.3.post2
-sentencepiece==0.1.99
+transformers
+torch
+accelerate
+bitsandbytes
+sentencepiece
 
 # Geospatial libraries
-geopy==2.4.0
-shapely==2.0.2
-geopandas==0.14.1
-pyproj==3.6.1
-Fiona==1.9.5
-GDAL==3.7.3
-
-# Database
-sqlite3
+geopy
+shapely
+geopandas
+pyproj
+Fiona
+GDAL
 
 # Data validation and models
-pydantic==2.5.0
+pydantic
 
 # HTTP requests
-requests==2.31.0
+requests
 
 # System and compatibility
-setuptools==68.2.2
-wheel==0.41.3
+setuptools
+wheel
 
 # Optional: for better performance
-numpy==1.24.4
-pandas==2.1.4
-
-# CORS middleware (already included in FastAPI but explicit for clarity)
-# fastapi already includes starlette which has CORS support
+numpy
+pandas
 
 # For OpenStreetMap data processing
-overpy==0.7
+overpy
 
 # Additional utilities that might be needed
-python-dateutil==2.8.2
-pytz==2023.3
+python-dateutil
+pytz
 
 # For better JSON handling
-orjson==3.9.10
+orjson
 
 # Optional: Logging and monitoring
-gunicorn==21.2.0
+gunicorn
