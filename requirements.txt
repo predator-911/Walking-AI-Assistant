@@ -26,7 +26,7 @@ torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
 accelerate==0.24.1
 bitsandbytes==0.41.3
 sentencepiece==0.1.99
-tokenizers==0.15.0
+tokenizers>=0.14.0,<0.15.0
 
 # System and compatibility
 setuptools==69.0.0
