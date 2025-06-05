@@ -10,8 +10,6 @@ pydantic==2.5.0
 requests==2.31.0
 httpx==0.25.2
 
-# Database
-sqlite3  # Built into Python, but explicit for clarity
 
 # Geospatial libraries (lightweight versions for cloud deployment)
 geopy==2.4.0
